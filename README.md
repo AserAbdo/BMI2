@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![BMI Calculator Banner](https://img.shields.io/badge/BMI-Calculator-green?style=for-the-badge&logo=flutter)
+![BMI Calculator Banner](assets/banner.gif)
 
 **Your Personal Health Companion for BMI Tracking and Analysis**
 
@@ -42,6 +42,8 @@ A modern Flutter mobile application that helps users calculate their Body Mass I
 Watch the app in action:
 
 <div align="center">
+
+![App Demo](assets/demo.gif)
 
 **BMI Calculator Demo — Calculate Your Health Index**
 
