@@ -43,7 +43,7 @@ Watch the app in action:
 
 <div align="center">
 
-![App Demo](assets/demo.gif)
+<img src="assets/demo.gif" width="200" alt="App Demo" />
 
 **BMI Calculator Demo — Calculate Your Health Index**
 
