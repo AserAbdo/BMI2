@@ -1,25 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/widgets/app_title.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/utils/colors.dart';
-import '../../../core/utils/bmi_calculator.dart';
+import '../../../cubit/bmi_cubit.dart';
+import '../../../cubit/bmi_state.dart';
 import '../../bmi_result/presentation/bmi_result_screen.dart';
 import 'widgets/value_card.dart';
 import 'widgets/height_slider_card.dart';
 
-class BMIInputScreen extends StatefulWidget {
-  final String gender;
-
-  const BMIInputScreen({super.key, required this.gender});
-
-  @override
-  State<BMIInputScreen> createState() => _BMIInputScreenState();
-}
-
-class _BMIInputScreenState extends State<BMIInputScreen> {
-  int weight = 65;
-  int age = 26;
-  int height = 170;
+/// BMI Input Screen
+///
+/// Uses BlocBuilder to rebuild UI when state changes
+/// All values (weight, height, age) are managed by BmiCubit
+class BMIInputScreen extends StatelessWidget {
+  const BMIInputScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,91 +30,91 @@ class _BMIInputScreenState extends State<BMIInputScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Please Modify the values',
-                    style: TextStyle(fontSize: 18, color: AppColors.black87),
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
+      // BlocBuilder rebuilds only when state changes
+      body: BlocBuilder<BmiCubit, BmiState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: ValueCard(
-                          label: 'Weight (kg)',
-                          value: weight,
-                          onIncrement: () {
-                            setState(() {
-                              weight++;
-                            });
-                          },
-                          onDecrement: () {
-                            setState(() {
-                              if (weight > 1) weight--;
-                            });
-                          },
+                      const Text(
+                        'Please Modify the values',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.black87,
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: ValueCard(
-                          label: 'Age',
-                          value: age,
-                          onIncrement: () {
-                            setState(() {
-                              age++;
-                            });
-                          },
-                          onDecrement: () {
-                            setState(() {
-                              if (age > 1) age--;
-                            });
-                          },
-                        ),
+                      const SizedBox(height: 30),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ValueCard(
+                              label: 'Weight (kg)',
+                              value: state.weight,
+                              onIncrement: () {
+                                // Call cubit method
+                                context.read<BmiCubit>().incrementWeight();
+                              },
+                              onDecrement: () {
+                                // Call cubit method
+                                context.read<BmiCubit>().decrementWeight();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: ValueCard(
+                              label: 'Age',
+                              value: state.age,
+                              onIncrement: () {
+                                // Call cubit method
+                                context.read<BmiCubit>().incrementAge();
+                              },
+                              onDecrement: () {
+                                // Call cubit method
+                                context.read<BmiCubit>().decrementAge();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 30),
+                      HeightSliderCard(
+                        height: state.height,
+                        onChanged: (value) {
+                          // Call cubit method
+                          context.read<BmiCubit>().updateHeight(value.round());
+                        },
+                      ),
+                      const SizedBox(height: 20),
                     ],
                   ),
-                  const SizedBox(height: 30),
-                  HeightSliderCard(
-                    height: height,
-                    onChanged: (value) {
-                      setState(() {
-                        height = value.round();
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: PrimaryButton(
-              text: 'Calculate',
-              onPressed: () {
-                double bmi = BMICalculator.calculateBMI(weight, height);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BMIResultScreen(
-                      bmi: bmi,
-                      weight: weight,
-                      height: height,
-                      age: age,
-                      gender: widget.gender,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: PrimaryButton(
+                  text: 'Calculate',
+                  onPressed: () {
+                    // Calculate BMI using cubit
+                    context.read<BmiCubit>().calculateBmi();
+
+                    // Navigate to result screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BMIResultScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
